@@ -65,11 +65,11 @@ object Game {
     val winningPoints = 5
     do {
 
-      while(player.sunkenBoats != winningPoints && playerShooting(Message.WRITE_FIELD_TO_SHOOT)) {
+      while (player.sunkenBoats != winningPoints && playerShooting(Message.WRITE_FIELD_TO_SHOOT)) {
         update()
       }
 
-      while(ai.sunkenBoats != winningPoints && player.sunkenBoats != winningPoints && aiShooting()) {
+      while (ai.sunkenBoats != winningPoints && player.sunkenBoats != winningPoints && aiShooting()) {
         println("AFTER AI SHOOTING")
         update()
       }

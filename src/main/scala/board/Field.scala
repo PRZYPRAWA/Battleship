@@ -1,6 +1,6 @@
 package board
 
-import exception.{InvalidFieldException, InvalidInputException}
+import ui.Message
 
 case class Field(col: Int, row: Int) {
   override def toString: String = (col + 'a' - 1).toChar.toString + row
@@ -13,15 +13,16 @@ case class Field(col: Int, row: Int) {
 }
 
 object Field {
-  def fromStringToField(field: String): Field = {
+  //returns pair of Options (Field, ErrorMessage)
+  def fromStringToField(field: String): (Option[Field], Option[String]) = {
     if (field.matches("[a-j]\\d{1,2}")) {
       val col = field.charAt(0) - 96 // because 'a' in ascii is 97
       val row = field.substring(1).toInt
       val newField = Field(col, row)
 
-      if (newField.isValid) newField
-      else throw new InvalidFieldException
+      if (newField.isValid) (Some(newField), None)
+      else (None, Some(Message.FIELD_OUT_OF_BOARD))
     }
-    else throw new InvalidInputException
+    else (None, Some(Message.WRONG_FORMAT))
   }
 }

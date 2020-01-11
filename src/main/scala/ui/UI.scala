@@ -4,8 +4,6 @@ import java.lang.System.lineSeparator
 import scala.io.StdIn.readLine
 
 import board._
-import game.Game.player
-import exception.{InvalidFieldException, InvalidInputException}
 
 
 object UI {
@@ -14,26 +12,23 @@ object UI {
 
   def showBoard(board: Board, msg: String): Unit = println(msg + lineSeparator() + board + lineSeparator())
 
-  def getField: Field = {
+  def getField: (Option[Field], Option[String]) = {
     val field = readLine
     Field.fromStringToField(field)
   }
 
   def getFieldToShootFromPlayer(msg: String): Field = {
-    var field = Field(0,0)
-    while (!field.isValid || player.fieldsShot.contains(field)) {
-      println(msg)
-      try {
-        field = getField
-        if (player.fieldsShot.contains(field)) println(Message.SHOOT_TO_THE_ALREADY_SHOT_FIELD)
-      }
-      catch {
-        case _: InvalidInputException => println(Message.WRONG_FORMAT)
-        case _: InvalidFieldException => println(Message.FIELD_OUT_OF_BOARD)
-        case _: Throwable => println(Message.OTHER_KIND_OF_EXCEPTION)
-      }
+    println(msg)
+
+    val (field, errorMessage) = getField
+
+    (field, errorMessage) match {
+      case (Some(field), None) => field
+      case (None, Some(err)) =>
+        println(err)
+        getFieldToShootFromPlayer(msg)
+      case _ => throw new Exception("Unexpected error!")
     }
-    field
   }
 
   @scala.annotation.tailrec
@@ -44,23 +39,22 @@ object UI {
     }
 
     def getValidField(msg: String): Field = {
-      var newField = Field(0, 0)
-      while (!newField.isValid) {
-        println(msg)
-        try {
-          newField = getField
-          if (!board.fieldNotAdjoin(newField)) {
+      println(msg)
+
+      val (field, errorMessage) = getField
+
+      (field, errorMessage) match {
+        case (Some(field), None) =>
+          if (!board.fieldNotAdjoin(field)) {
             println(Message.FIELD_ADJOINS_OTHER_SHIP)
-            newField = getValidField(msg)
+            getValidField(msg)
           }
-        }
-        catch {
-          case _: InvalidInputException => println(Message.WRONG_FORMAT)
-          case _: InvalidFieldException => println(Message.FIELD_OUT_OF_BOARD)
-          case _: Throwable => println(Message.OTHER_KIND_OF_EXCEPTION)
-        }
+          else field
+        case (None, Some(err)) =>
+          println(err)
+          getFieldToShootFromPlayer(msg)
+        case _ => throw new Exception("Unexpected error!")
       }
-      newField
     }
 
     println(Message.ADD_SHIP_TO_BOARD(ship))

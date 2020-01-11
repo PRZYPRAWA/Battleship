@@ -7,13 +7,13 @@ class FieldSpec extends AnyWordSpec with Matchers {
   "A Field" should {
 
     "return valid string in toString method" in {
-      val field = Field(1,1)
+      val field = Field(1, 1)
       val fieldString = field.toString
       fieldString shouldBe "a1"
     }
 
     "return true if valid" in {
-      val field1 = Field(1,1)
+      val field1 = Field(1, 1)
       val isValid1 = field1.isValid
       isValid1 shouldBe true
 
@@ -31,7 +31,7 @@ class FieldSpec extends AnyWordSpec with Matchers {
     }
 
     "return false if invalid" in {
-      val field1 = Field(0,5)
+      val field1 = Field(0, 5)
       val isValid = field1.isValid
       isValid shouldBe false
     }

@@ -6,8 +6,9 @@ import scala.collection.mutable.ArrayBuffer
 object Board {
   val boardSize = 10
 }
+
 class Board {
-  var board: Map[Field,Ship] = Map.empty
+  var board: Map[Field, Ship] = Map.empty
 
   def shoot(field: Field): Reply = {
     if (field.isValid) {
@@ -35,14 +36,14 @@ class Board {
 
   def fieldNotAdjoin(field: Field): Boolean = {
     !board.contains(field) &&
-    !board.contains(field.relative(0,1)) &&
-    !board.contains(field.relative(0,-1)) &&
-    !board.contains(field.relative(1,0)) &&
-    !board.contains(field.relative(1,1)) &&
-    !board.contains(field.relative(1,-1)) &&
-    !board.contains(field.relative(-1,0)) &&
-    !board.contains(field.relative(-1,1)) &&
-    !board.contains(field.relative(-1,-1))
+      !board.contains(field.relative(0, 1)) &&
+      !board.contains(field.relative(0, -1)) &&
+      !board.contains(field.relative(1, 0)) &&
+      !board.contains(field.relative(1, 1)) &&
+      !board.contains(field.relative(1, -1)) &&
+      !board.contains(field.relative(-1, 0)) &&
+      !board.contains(field.relative(-1, 1)) &&
+      !board.contains(field.relative(-1, -1))
   }
 
   def shipNotAdjoin(begin: Field, end: Field, vertical: Boolean): Boolean = {
@@ -58,14 +59,14 @@ class Board {
 
     val (beginField, endField) = if (begin < end) (begin, end) else (end, begin)
     if (vertical) {
-      checkDoesNotAdjoin(beginField.relative(0,-1), endField.relative(0,1), true) &&
-        checkDoesNotAdjoin(beginField.relative(-1,-1), endField.relative(-1,1), true) &&
-        checkDoesNotAdjoin(beginField.relative(1,-1), endField.relative(1,1), true)
+      checkDoesNotAdjoin(beginField.relative(0, -1), endField.relative(0, 1), true) &&
+        checkDoesNotAdjoin(beginField.relative(-1, -1), endField.relative(-1, 1), true) &&
+        checkDoesNotAdjoin(beginField.relative(1, -1), endField.relative(1, 1), true)
     }
     else {
-      checkDoesNotAdjoin(beginField.relative(-1,0), endField.relative(1,0), false) &&
-        checkDoesNotAdjoin(beginField.relative(-1,-1), endField.relative(1,-1), false) &&
-        checkDoesNotAdjoin(beginField.relative(-1,1), endField.relative(1,1), false)
+      checkDoesNotAdjoin(beginField.relative(-1, 0), endField.relative(1, 0), false) &&
+        checkDoesNotAdjoin(beginField.relative(-1, -1), endField.relative(1, -1), false) &&
+        checkDoesNotAdjoin(beginField.relative(-1, 1), endField.relative(1, 1), false)
     }
   }
 
@@ -74,29 +75,29 @@ class Board {
     def add(begin: Field, end: Field, ship: Ship, vertical: Boolean): Unit = {
       if (begin == end) board += (begin -> ship)
       else if (vertical) {
-          board += (begin -> ship)
-          add(begin.relative(0, 1), end, ship, vertical)
+        board += (begin -> ship)
+        add(begin.relative(0, 1), end, ship, vertical)
       } else {
-          board += (begin -> ship)
-          add(begin.relative(1, 0), end, ship, vertical)
+        board += (begin -> ship)
+        add(begin.relative(1, 0), end, ship, vertical)
       }
     }
 
     if (beginField.isValid
-        && endField.isValid
-        && beginField.col == endField.col
-        && shipNotAdjoin(beginField, endField, true)
-        && (Math.abs(endField.row - beginField.row) + 1 == ship.len)) {
+      && endField.isValid
+      && beginField.col == endField.col
+      && shipNotAdjoin(beginField, endField, true)
+      && (Math.abs(endField.row - beginField.row) + 1 == ship.len)) {
 
       if (beginField < endField) add(beginField, endField, ship, true)
       else add(endField, beginField, ship, true)
       true
     }
     else if (beginField.isValid
-            && endField.isValid
-            && beginField.row == endField.row
-            && shipNotAdjoin(beginField, endField, false)
-            && (Math.abs(endField.col - beginField.col) + 1 == ship.len)) {
+      && endField.isValid
+      && beginField.row == endField.row
+      && shipNotAdjoin(beginField, endField, false)
+      && (Math.abs(endField.col - beginField.col) + 1 == ship.len)) {
 
       if (beginField < endField) add(beginField, endField, ship, false)
       else add(endField, beginField, ship, false)
@@ -111,22 +112,22 @@ class Board {
 
     var fstPossible = field.relative(0, shipLength)
     if (fstPossible.isValid
-        && shipNotAdjoin(field, fstPossible, true))
+      && shipNotAdjoin(field, fstPossible, true))
       possibilities += fstPossible
 
     var sndPossible = field.relative(0, -shipLength)
     if (sndPossible.isValid
-        && shipNotAdjoin(field, sndPossible, true))
+      && shipNotAdjoin(field, sndPossible, true))
       possibilities += sndPossible
 
     var thirdPossible = field.relative(shipLength, 0)
     if (thirdPossible.isValid
-        && shipNotAdjoin(field, thirdPossible, false))
+      && shipNotAdjoin(field, thirdPossible, false))
       possibilities += thirdPossible
 
     var fourthPossible = field.relative(-shipLength, 0)
     if (fourthPossible.isValid
-        && shipNotAdjoin(field, fourthPossible, false))
+      && shipNotAdjoin(field, fourthPossible, false))
       possibilities += fourthPossible
 
     possibilities
@@ -134,9 +135,9 @@ class Board {
 
   override def toString: String = {
     def rowToString(row: Int) = 1.to(Board.boardSize).map(col =>
-      board.get(Field(col,row)).map(" " + _.toString).getOrElse(" -")).mkString
+      board.get(Field(col, row)).map(" " + _.toString).getOrElse(" -")).mkString
 
-    " " + " abcdefghij".mkString(" ") + lineSeparator() + 1.to(Board.boardSize).map{
+    " " + " abcdefghij".mkString(" ") + lineSeparator() + 1.to(Board.boardSize).map {
       case Board.boardSize => Board.boardSize.toString + rowToString(Board.boardSize) + " " + Board.boardSize.toString + lineSeparator()
       case row => row.toString + " " + rowToString(row) + " " + row.toString + lineSeparator()
     }.mkString + " " + " abcdefghij".mkString(" ")

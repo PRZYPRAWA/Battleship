@@ -17,7 +17,7 @@ object Message {
   val WRITE_FIELD_TO_SHOOT = "Write field to shoot coordinates (e.g. 'a1'): "
   val SHOOT_TO_THE_ALREADY_SHOT_FIELD = "You shot this field earlier, try again!"
 
-  val _WON_THE_GAME: (String => String ) = (player: String) => s"$player WON THE GAME"
+  val _WON_THE_GAME: (String => String) = (player: String) => s"$player WON THE GAME"
 
   val OTHER_KIND_OF_EXCEPTION = "Other kind of exception!"
 

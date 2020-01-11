@@ -9,8 +9,8 @@ class BoardSpec extends AnyWordSpec with Matchers {
     "return true if added a ship" in {
       val board = new Board
       val shipToAdd = new Carrier
-      val firstField = Field(1,1)
-      val secondField = Field(5,1)
+      val firstField = Field(1, 1)
+      val secondField = Field(5, 1)
       val didAdd = board.addShip(firstField, secondField, shipToAdd)
       didAdd shouldBe true
     }
@@ -19,13 +19,13 @@ class BoardSpec extends AnyWordSpec with Matchers {
       val board = new Board
 
       val shipToAdd = new Carrier
-      val firstField = Field(1,1)
-      val secondField = Field(5,1)
+      val firstField = Field(1, 1)
+      val secondField = Field(5, 1)
       val didAddValidShip = board.addShip(firstField, secondField, shipToAdd)
 
       val invalidShip = new Battleship
-      val invalidFirstField = Field(2,1)
-      val invalidSecondField = Field(5,1)
+      val invalidFirstField = Field(2, 1)
+      val invalidSecondField = Field(5, 1)
       val didNotAddInvalidShip = board.addShip(invalidFirstField, invalidSecondField, invalidShip)
 
       didAddValidShip shouldBe true
@@ -36,19 +36,19 @@ class BoardSpec extends AnyWordSpec with Matchers {
       val board = new Board
 
       val shipToAdd = new Carrier
-      val firstField = Field(1,0)
-      val secondField = Field(5,0)
+      val firstField = Field(1, 0)
+      val secondField = Field(5, 0)
       val didAdd = board.addShip(firstField, secondField, shipToAdd)
       didAdd shouldBe false
     }
 
     "return Hit if shoot at occupied field" in {
       val board = new Board
-      val fieldToShoot = Field(1,1)
+      val fieldToShoot = Field(1, 1)
 
       val shipToAdd = new Carrier
-      val firstField = Field(1,1)
-      val secondField = Field(5,1)
+      val firstField = Field(1, 1)
+      val secondField = Field(5, 1)
       val didAdd = board.addShip(firstField, secondField, shipToAdd)
 
       didAdd shouldBe true
@@ -59,7 +59,7 @@ class BoardSpec extends AnyWordSpec with Matchers {
 
     "return Mishit if shoot at unoccupied field" in {
       val board = new Board
-      val fieldToShoot = Field(1,1)
+      val fieldToShoot = Field(1, 1)
       val reply = board.shoot(fieldToShoot)
       reply shouldBe Mishit
     }
