@@ -32,8 +32,16 @@ class FieldSpec extends AnyWordSpec with Matchers {
 
     "return false if invalid" in {
       val field1 = Field(0, 5)
-      val isValid = field1.isValid
-      isValid shouldBe false
+      val isValid1 = field1.isValid
+      isValid1 shouldBe false
+
+      val field2 = Field(5, 0)
+      val isValid2 = field2.isValid
+      isValid2 shouldBe false
+
+      val field3 = Field(11, 0)
+      val isValid3 = field3.isValid
+      isValid3 shouldBe false
     }
   }
 }

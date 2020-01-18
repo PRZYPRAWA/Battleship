@@ -1,37 +1,34 @@
 package board
 
 import java.lang.System.lineSeparator
-import scala.collection.mutable.ArrayBuffer
 
 object Board {
   val boardSize = 10
+
+  def apply(board: Map[Field, Ship] = Map.empty) = new Board(board)
 }
 
-class Board {
-  var board: Map[Field, Ship] = Map.empty
+class Board(val board: Map[Field, Ship] = Map()) {
 
-  def shoot(field: Field): Reply = {
+  def shoot(field: Field): (Board, Reply) = {
     if (field.isValid) {
       val attempt: Ship = board.getOrElse(field, Miss)
-      if (attempt == Miss) {
-        board += (field -> Miss)
-        Mishit
-      }
+      if (attempt == Miss) (Board(board + (field -> Miss)), Mishit)
       else {
-        attempt.hit()
-        board += (field -> Shot)
-        if (attempt.len == 0) Sunk
-        else Hit
+        //attempt.hit()
+        if (attempt.len == 0) (Board(board + (field -> Shot)), Sunk)
+        else (Board(board + (field -> Shot)), Hit)
       }
     }
-    else Mishit
+    else (Board(board), Mishit)
   }
 
-  def afterShot(field: Field, reply: Reply): Unit = {
+  def afterShot(field: Field, reply: Reply): Board = {
     if (field.isValid) {
-      if (reply == Mishit) board += (field -> Miss)
-      else board += (field -> Shot)
+      if (reply == Mishit) Board(board + (field -> Miss))
+      else Board(board + (field -> Shot))
     }
+    Board(board)
   }
 
   def fieldNotAdjoin(field: Field): Boolean = {
@@ -49,37 +46,37 @@ class Board {
   def shipNotAdjoin(begin: Field, end: Field, vertical: Boolean): Boolean = {
     @scala.annotation.tailrec
     def checkDoesNotAdjoin(begin: Field, end: Field, vertical: Boolean): Boolean = {
-      if (begin == end) !board.contains(begin)
+      if (begin == end) fieldNotAdjoin(begin)
       else if (vertical) {
-        !board.contains(begin) && checkDoesNotAdjoin(begin.relative(0, 1), end, vertical)
+        fieldNotAdjoin(begin) && checkDoesNotAdjoin(begin.relative(0, 1), end, vertical)
       } else {
-        !board.contains(begin) && checkDoesNotAdjoin(begin.relative(1, 0), end, vertical)
+        fieldNotAdjoin(begin) && checkDoesNotAdjoin(begin.relative(1, 0), end, vertical)
       }
     }
 
     val (beginField, endField) = if (begin < end) (begin, end) else (end, begin)
     if (vertical) {
-      checkDoesNotAdjoin(beginField.relative(0, -1), endField.relative(0, 1), true) &&
-        checkDoesNotAdjoin(beginField.relative(-1, -1), endField.relative(-1, 1), true) &&
-        checkDoesNotAdjoin(beginField.relative(1, -1), endField.relative(1, 1), true)
+      //      checkDoesNotAdjoin(beginField.relative(0, -1), endField.relative(0, 1), true) &&
+      //        checkDoesNotAdjoin(beginField.relative(-1, -1), endField.relative(-1, 1), true) &&
+      //        checkDoesNotAdjoin(beginField.relative(1, -1), endField.relative(1, 1), true)
+      checkDoesNotAdjoin(beginField, endField, true)
     }
     else {
-      checkDoesNotAdjoin(beginField.relative(-1, 0), endField.relative(1, 0), false) &&
-        checkDoesNotAdjoin(beginField.relative(-1, -1), endField.relative(1, -1), false) &&
-        checkDoesNotAdjoin(beginField.relative(-1, 1), endField.relative(1, 1), false)
+      //      checkDoesNotAdjoin(beginField.relative(-1, 0), endField.relative(1, 0), false) &&
+      //        checkDoesNotAdjoin(beginField.relative(-1, -1), endField.relative(1, -1), false) &&
+      //        checkDoesNotAdjoin(beginField.relative(-1, 1), endField.relative(1, 1), false)
+      checkDoesNotAdjoin(beginField, endField, false)
     }
   }
 
-  def addShip(beginField: Field, endField: Field, ship: Ship): Boolean = {
-    @scala.annotation.tailrec
-    def add(begin: Field, end: Field, ship: Ship, vertical: Boolean): Unit = {
-      if (begin == end) board += (begin -> ship)
+  def addShip(beginField: Field, endField: Field, ship: Ship): Board = {
+
+    def add(begin: Field, end: Field, ship: Ship, vertical: Boolean): Map[Field, Ship] = {
+      if (begin == end) Map(begin -> ship)
       else if (vertical) {
-        board += (begin -> ship)
-        add(begin.relative(0, 1), end, ship, vertical)
+        add(begin.relative(0, 1), end, ship, vertical) + (begin -> ship)
       } else {
-        board += (begin -> ship)
-        add(begin.relative(1, 0), end, ship, vertical)
+        add(begin.relative(1, 0), end, ship, vertical) + (begin -> ship)
       }
     }
 
@@ -89,9 +86,8 @@ class Board {
       && shipNotAdjoin(beginField, endField, true)
       && (Math.abs(endField.row - beginField.row) + 1 == ship.len)) {
 
-      if (beginField < endField) add(beginField, endField, ship, true)
-      else add(endField, beginField, ship, true)
-      true
+      if (beginField < endField) new Board(board ++ add(beginField, endField, ship, true))
+      else new Board(board ++ add(endField, beginField, ship, true))
     }
     else if (beginField.isValid
       && endField.isValid
@@ -99,38 +95,28 @@ class Board {
       && shipNotAdjoin(beginField, endField, false)
       && (Math.abs(endField.col - beginField.col) + 1 == ship.len)) {
 
-      if (beginField < endField) add(beginField, endField, ship, false)
-      else add(endField, beginField, ship, false)
-      true
+      if (beginField < endField) new Board(board ++ add(beginField, endField, ship, false))
+      else new Board(board ++ add(endField, beginField, ship, false))
     }
-    else false
+    else Board(board)
   }
 
-  def possibleFields(field: Field, ship: Ship): ArrayBuffer[Field] = {
-    var possibilities: ArrayBuffer[Field] = ArrayBuffer.empty
+  def possibleFields(field: Field, ship: Ship): Array[Field] = {
     val shipLength = ship.len - 1
 
-    var fstPossible = field.relative(0, shipLength)
-    if (fstPossible.isValid
-      && shipNotAdjoin(field, fstPossible, true))
-      possibilities += fstPossible
+    val horizontalPossibilities =
+      Array(
+        field.relative(shipLength, 0),
+        field.relative(-shipLength, 0)
+      )
 
-    var sndPossible = field.relative(0, -shipLength)
-    if (sndPossible.isValid
-      && shipNotAdjoin(field, sndPossible, true))
-      possibilities += sndPossible
+    val verticalPossibilities = Array(
+      field.relative(0, shipLength),
+      field.relative(0, -shipLength)
+    )
 
-    var thirdPossible = field.relative(shipLength, 0)
-    if (thirdPossible.isValid
-      && shipNotAdjoin(field, thirdPossible, false))
-      possibilities += thirdPossible
-
-    var fourthPossible = field.relative(-shipLength, 0)
-    if (fourthPossible.isValid
-      && shipNotAdjoin(field, fourthPossible, false))
-      possibilities += fourthPossible
-
-    possibilities
+    verticalPossibilities.filter(elem => elem.isValid && shipNotAdjoin(field, elem, true)) ++
+      horizontalPossibilities.filter(elem => elem.isValid && shipNotAdjoin(field, elem, false))
   }
 
   override def toString: String = {

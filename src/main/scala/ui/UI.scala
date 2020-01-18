@@ -7,10 +7,7 @@ import board._
 
 
 object UI {
-
-  def showBoard(board: Board): Unit = println(board + lineSeparator())
-
-  def showBoard(board: Board, msg: String): Unit = println(msg + lineSeparator() + board + lineSeparator())
+  def showBoard(board: Board, msg: String = ""): Unit = println(msg + lineSeparator() + board + lineSeparator())
 
   def getField: (Option[Field], Option[String]) = {
     val field = readLine
@@ -32,7 +29,8 @@ object UI {
   }
 
   @scala.annotation.tailrec
-  def addShipFromInput(board: Board, ship: Ship): Unit = {
+  def addShipFromInput(board: Board, ship: Ship): Board = {
+
     def showPossibleFields(field: Field, ship: Ship): Unit = {
       val possibilities = board.possibleFields(field, ship)
       println(s"All possible fields: ${possibilities.mkString(", ")}")
@@ -64,10 +62,13 @@ object UI {
 
     val secondField = getValidField(Message.WRITE_FIELD_COORDINATES("second"))
 
-    if (board.addShip(firstField, secondField, ship)) ()
-    else {
+    val newBoard = board.addShip(firstField, secondField, ship)
+    if (newBoard == board) {
       println(Message.WRONG_LENGTH_OR_ADJACENT_SHIP)
       addShipFromInput(board, ship)
+    }
+    else {
+      newBoard
     }
   }
 

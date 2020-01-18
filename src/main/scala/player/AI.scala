@@ -1,28 +1,18 @@
 package player
 
-import scala.collection.mutable.ArrayBuffer
 import board.{Board, Field, Ship}
 
-class AI(override val playerBoard: Board, override val opponentBoard: Board) extends Player(playerBoard, opponentBoard) {
-
-  sealed trait Direction
-
-  case object Up extends Direction
-
-  case object Down extends Direction
-
-  case object Left extends Direction
-
-  case object Right extends Direction
+case class AI(playerBoard: Board,
+              opponentBoard: Board,
+              nextFieldToShoot: Option[Field] = None,
+              nextDirection: Option[Direction] = None,
+              sunkenBoats: Int = 0,
+              shotFields: Array[Field] = Array.empty
+             ) extends Player {
 
   override def toString: String = "AI"
 
-  val directions: ArrayBuffer[Direction] = ArrayBuffer(Up, Down, Left, Right)
-
-  val shots: ArrayBuffer[Field] = ArrayBuffer.empty
-
-  var nextField: Option[Field] = None
-  var nextDirection: Option[Direction] = Some(Down)
+  val directions: Array[Direction] = Array(Up, Down, Left, Right)
 
   @scala.annotation.tailrec
   private def randomValidField: Field = {
@@ -40,65 +30,92 @@ class AI(override val playerBoard: Board, override val opponentBoard: Board) ext
 
   private def randomFieldToShoot: Field = {
     val field = randomValidField
-    if (shots.contains(field)) randomFieldToShoot
+    if (shotFields.contains(field)) randomFieldToShoot
     else field
   }
 
-  def choose[A](array: ArrayBuffer[A]): A = {
+  def choose[A](array: Array[A]): A = {
     val r = new scala.util.Random
     array(r.nextInt(array.length))
   }
 
-  def addShip(ship: Ship): Unit = {
+  def addShip(ship: Ship): AI = {
     val beginField = randomFieldToAddShip
 
     val possibleEnd = playerBoard.possibleFields(beginField, ship)
     val endField = choose(possibleEnd)
-    playerBoard.addShip(beginField, endField, ship)
+
+    AI(
+      playerBoard.addShip(beginField, endField, ship),
+      opponentBoard,
+      nextFieldToShoot,
+      nextDirection,
+      sunkenBoats,
+      shotFields
+    )
   }
 
-  def setNextFieldAndDirection(field: Field, didHit: Boolean): Unit = {
+  def setNextFieldAndDirection(field: Field, didHit: Boolean): AI = {
     if (!didHit) {
-      nextDirection = None
-      nextField = None
+      fieldToShoot
     } else {
-      nextField = nextDirection match {
+      val newDirection = if (nextDirection.isEmpty) Some(choose(directions)) else nextDirection
+      val newField = nextDirection match {
         case Some(Up) => Some(field.relative(0, -1))
         case Some(Down) => Some(field.relative(0, 1))
         case Some(Left) => Some(field.relative(-1, 0))
         case Some(Right) => Some(field.relative(1, 0))
-        case None => {
-          nextDirection = Some(choose(directions))
-          nextDirection match {
-            case Some(Up) => Some(field.relative(0, -1))
-            case Some(Down) => Some(field.relative(0, 1))
-            case Some(Left) => Some(field.relative(-1, 0))
-            case Some(Right) => Some(field.relative(1, 0))
-          }
-        }
+        case None => throw new Exception("Unexpected error: AI, setNextFieldAndDirection!")
       }
+
+      AI(
+        playerBoard,
+        opponentBoard,
+        newField,
+        newDirection,
+        sunkenBoats
+      )
     }
   }
 
-  def fieldToShoot: Field = {
-    if (nextField == None) {
+  private def fieldToShoot: AI = {
+    if (nextFieldToShoot.isEmpty) {
       val field = randomFieldToShoot
 
-      if (shots.contains(field)) fieldToShoot
+      if (shotFields.contains(field)) fieldToShoot
       else {
-        shots += field
-
-        field
+        AI(
+          playerBoard,
+          opponentBoard,
+          Some(field),
+          nextDirection,
+          sunkenBoats,
+          shotFields :+ field
+        )
       }
     } else {
-      val field = nextField.get
-      if (field.isValid && !shots.contains(field)) {
-        shots += field
-
-        field
+      val field = nextFieldToShoot.get
+      if (field.isValid && !shotFields.contains(field)) {
+        AI(
+          playerBoard,
+          opponentBoard,
+          Some(field),
+          nextDirection,
+          sunkenBoats,
+          shotFields :+ field
+        )
       }
-      else randomFieldToShoot
+      else {
+        val randomField = randomFieldToShoot
+        AI(
+          playerBoard,
+          opponentBoard,
+          Some(randomField),
+          nextDirection,
+          sunkenBoats,
+          shotFields :+ randomField
+        )
+      }
     }
   }
-
 }

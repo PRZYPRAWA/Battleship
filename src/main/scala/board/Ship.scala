@@ -1,49 +1,45 @@
 package board
 
 sealed trait Ship {
-  var len: Int
-
-  def hit(): Unit = if (len == 0) () else len -= 1
+  val len: Int
 }
 
-class Carrier extends Ship {
-  override var len: Int = 5
-
+case class Carrier(len: Int = ShipConsts.carrierLen) extends Ship {
   override def toString: String = "C"
 }
 
-class Battleship extends Ship {
-  override var len: Int = 4
-
+case class Battleship(len: Int = ShipConsts.battleshipLen) extends Ship {
   override def toString: String = "B"
 }
 
-class Destroyer extends Ship {
-  override var len: Int = 3
-
+case class Destroyer(len: Int = ShipConsts.destroyerLen) extends Ship {
   override def toString: String = "D"
 }
 
-class Submarine extends Ship {
-  override var len: Int = 3
-
+case class Submarine(len: Int = ShipConsts.submarineLen) extends Ship {
   override def toString: String = "S"
 }
 
-class PatrolBoat extends Ship {
-  override var len: Int = 2
-
+case class PatrolBoat(len: Int = ShipConsts.patrolBoatLen) extends Ship {
   override def toString: String = "P"
 }
 
 case object Miss extends Ship {
-  override var len: Int = 0
-
+  override val len: Int = 0
   override def toString: String = "o"
 }
 
 case object Shot extends Ship {
-  override var len: Int = 0
-
+  override val len: Int = 0
   override def toString: String = "x"
+}
+
+object ShipConsts {
+  val carrierLen = 5
+  val battleshipLen = 4
+  val destroyerLen = 3
+  val submarineLen = 3
+  val patrolBoatLen = 2
+
+  val winningPoints = carrierLen + battleshipLen + destroyerLen + submarineLen + patrolBoatLen
 }

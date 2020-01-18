@@ -6,62 +6,107 @@ class BoardSpec extends AnyWordSpec with Matchers {
 
   "A Board" should {
 
-    "return true if added a ship" in {
-      val board = new Board
-      val shipToAdd = new Carrier
+    "return a new Board with a Ship if added the ship" in {
+      val board = Board()
+      val shipToAdd = Carrier()
       val firstField = Field(1, 1)
       val secondField = Field(5, 1)
-      val didAdd = board.addShip(firstField, secondField, shipToAdd)
-      didAdd shouldBe true
+      val boardWithShip = Board(Map(
+        Field(1, 1) -> shipToAdd,
+        Field(2, 1) -> shipToAdd,
+        Field(3, 1) -> shipToAdd,
+        Field(4, 1) -> shipToAdd,
+        Field(5, 1) -> shipToAdd
+      ))
+
+      val newBoard = board.addShip(firstField, secondField, shipToAdd)
+      newBoard.board shouldBe boardWithShip.board
+
+      val shipToAdd2 = Battleship()
+      val firstField2 = Field(2, 3)
+      val secondField2 = Field(5, 3)
+      val boardWithShip2 = Board(Map(
+        Field(1, 1) -> shipToAdd,
+        Field(2, 1) -> shipToAdd,
+        Field(3, 1) -> shipToAdd,
+        Field(4, 1) -> shipToAdd,
+        Field(5, 1) -> shipToAdd,
+        Field(2, 3) -> shipToAdd2,
+        Field(3, 3) -> shipToAdd2,
+        Field(4, 3) -> shipToAdd2,
+        Field(5, 3) -> shipToAdd2
+      ))
+
+      val newBoard2 = newBoard.addShip(firstField2, secondField2, shipToAdd2)
+      newBoard.board should not be newBoard2.board
+      newBoard2.board shouldEqual boardWithShip2.board
+
     }
 
-    "return false if tried to add a ship adjacent to another ship" in {
-      val board = new Board
+    "return the same Board if tried to add a ship adjacent to another ship" in {
+      val board = Board()
 
-      val shipToAdd = new Carrier
+      val shipToAdd = Carrier()
       val firstField = Field(1, 1)
       val secondField = Field(5, 1)
-      val didAddValidShip = board.addShip(firstField, secondField, shipToAdd)
+      val boardWithShip = board.addShip(firstField, secondField, shipToAdd)
 
-      val invalidShip = new Battleship
-      val invalidFirstField = Field(2, 1)
-      val invalidSecondField = Field(5, 1)
-      val didNotAddInvalidShip = board.addShip(invalidFirstField, invalidSecondField, invalidShip)
+      val invalidShip = Battleship()
+      val invalidFirstField1 = Field(2, 1)
+      val invalidSecondField1 = Field(5, 1)
+      val boardAfterFirstAttempt = boardWithShip.addShip(invalidFirstField1, invalidSecondField1, invalidShip)
 
-      didAddValidShip shouldBe true
-      didNotAddInvalidShip shouldBe false
+      boardWithShip.board shouldEqual boardAfterFirstAttempt.board
+
+      val invalidFirstField2 = Field(2, 2)
+      val invalidSecondField2 = Field(5, 2)
+      val boardAfterSecondAttempt = boardWithShip.addShip(invalidFirstField2, invalidSecondField2, invalidShip)
+
+      boardWithShip.board shouldEqual boardAfterSecondAttempt.board
     }
 
-    "return false if tried to add a ship at invalid field" in {
-      val board = new Board
+    "return the same Board if tried to add a ship at an invalid field" in {
+      val board = Board()
 
-      val shipToAdd = new Carrier
+      val shipToAdd = Carrier()
       val firstField = Field(1, 0)
       val secondField = Field(5, 0)
-      val didAdd = board.addShip(firstField, secondField, shipToAdd)
-      didAdd shouldBe false
+      val boardAfterAttempt = board.addShip(firstField, secondField, shipToAdd)
+      boardAfterAttempt.board shouldBe board.board
     }
 
     "return Hit if shoot at occupied field" in {
       val board = new Board
       val fieldToShoot = Field(1, 1)
 
-      val shipToAdd = new Carrier
+      val shipToAdd = Carrier()
       val firstField = Field(1, 1)
       val secondField = Field(5, 1)
-      val didAdd = board.addShip(firstField, secondField, shipToAdd)
+      val boardWithShip = board.addShip(firstField, secondField, shipToAdd)
 
-      didAdd shouldBe true
+      boardWithShip.board should not be board.board
 
-      val reply = board.shoot(fieldToShoot)
+      val (boardAfterShoot, reply) = boardWithShip.shoot(fieldToShoot)
       reply shouldBe Hit
+      boardAfterShoot.board should not be boardWithShip.board
+      boardAfterShoot.board shouldBe Map(
+        Field(1, 1) -> Shot
+        , Field(2, 1) -> shipToAdd
+        , Field(3, 1) -> shipToAdd
+        , Field(4, 1) -> shipToAdd
+        , Field(5, 1) -> shipToAdd
+      )
     }
 
     "return Mishit if shoot at unoccupied field" in {
       val board = new Board
       val fieldToShoot = Field(1, 1)
-      val reply = board.shoot(fieldToShoot)
+      val (boardAfterShot, reply) = board.shoot(fieldToShoot)
+
       reply shouldBe Mishit
+      boardAfterShot.board shouldBe Map(
+        fieldToShoot -> Miss
+      )
     }
   }
 }

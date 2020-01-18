@@ -1,84 +1,65 @@
 package game
 
-import player._
-import ui.UI._
-import ui.Message
 import board._
+import player._
+import ui.Message
+import ui.UI._
 
 object Game {
-  val ai = new AI(new Board, new Board)
-  val player = new NormalPlayer(new Board, new Board)
 
-  def update(): Unit = {
-    showBoard(player.playerBoard, Message.PLAYER_BOARD)
-    showBoard(player.opponentBoard, Message.OPPONENT_BOARD)
+  def update(playerBoard: Board, opponentBoard: Board): Unit = {
+    showBoard(playerBoard, Message.PLAYER_BOARD)
+    showBoard(opponentBoard, Message.OPPONENT_BOARD)
   }
 
-  def replyAfterShooting(playerShooting: Player, boardBeingShot: Board, field: Field): Boolean = {
-    val reply = boardBeingShot.shoot(field)
+  def addAiShips(): AI = {
+    def addShipFromList(ai: AI, ships: List[Ship]): AI = {
+      ships match {
+        case Nil => ai
+        case h::t => addShipFromList(ai.addShip(h), t)
+      }
+    }
 
-    playerShooting.opponentBoard.afterShot(field, reply)
-    if (reply == Sunk) playerShooting.sunkenBoats += 1
-    if (playerShooting == player) println(reply.toString.toUpperCase() + "!!!")
+    val ships = List(
+      Carrier(),
+      Battleship(),
+      Destroyer(),
+      Submarine(),
+      PatrolBoat()
+    )
 
-    reply != Mishit
+    val ai = AI(Board(), Board())
+    addShipFromList(ai, ships)
   }
 
-  def playerShooting(msg: String): Boolean = {
-    val field = getFieldToShootFromPlayer(msg)
-    player.fieldsShot += field
+  def addPlayerShips(): NormalPlayer = {
+    def addShipFromList(playerBoard: Board, ships: List[Ship]): Board = {
+      ships match {
+        case Nil => playerBoard
+        case h::t =>
+          showBoard(playerBoard, Message.PLAYER_BOARD)
+          addShipFromList(addShipFromInput(playerBoard, h), t)
+      }
+    }
 
-    replyAfterShooting(player, ai.playerBoard, field)
-  }
+    val ships = List(
+      Carrier(),
+      Battleship(),
+      Destroyer(),
+      Submarine(),
+      PatrolBoat()
+    )
 
-  def aiShooting(): Boolean = {
-    val field = ai.fieldToShoot
-
-    val didHit = replyAfterShooting(ai, player.playerBoard, field)
-
-    ai.setNextFieldAndDirection(field, didHit)
-
-    didHit
+    val playerBoard = addShipFromList(Board(), ships)
+    NormalPlayer(playerBoard, Board())
   }
 
   def startGame(): Unit = {
-    val aiShips = List(new Carrier,
-      new Battleship,
-      new Destroyer,
-      new Submarine,
-      new PatrolBoat)
+    val ai = addAiShips()
+    showBoard(ai.playerBoard)
 
-    aiShips.foreach(ship => ai.addShip(ship))
-
-    val playerShips = List(new Carrier,
-      new Battleship,
-      new Destroyer,
-      new Submarine,
-      new PatrolBoat)
-
-    showBoard(player.playerBoard, Message.PLAYER_BOARD)
-    playerShips.foreach(ship => {
-      addShipFromInput(player.playerBoard, ship)
-      showBoard(player.playerBoard, Message.PLAYER_BOARD)
-    })
-
-    val winningPoints = 5
-    do {
-
-      while (player.sunkenBoats != winningPoints && playerShooting(Message.WRITE_FIELD_TO_SHOOT)) {
-        update()
-      }
-
-      while (ai.sunkenBoats != winningPoints && player.sunkenBoats != winningPoints && aiShooting()) {
-        println("AFTER AI SHOOTING")
-        update()
-      }
-      update()
-
-    } while (player.sunkenBoats != winningPoints && ai.sunkenBoats != winningPoints)
-
-    val winner = if (player.sunkenBoats == winningPoints) player else ai
-    println(Message._WON_THE_GAME(winner.toString))
+    val player = addPlayerShips()
+    showBoard(player.playerBoard)
   }
 
 }
