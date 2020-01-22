@@ -63,7 +63,7 @@ object UI {
     val secondField = getValidField(Message.WRITE_FIELD_COORDINATES("second"))
 
     val newBoard = board.addShip(firstField, secondField, ship)
-    if (newBoard == board) {
+    if (newBoard.board == board.board) {
       println(Message.WRONG_LENGTH_OR_ADJACENT_SHIP)
       addShipFromInput(board, ship)
     }

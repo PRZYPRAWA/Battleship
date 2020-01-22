@@ -28,7 +28,7 @@ case class AI(playerBoard: Board,
     else randomFieldToAddShip
   }
 
-  private def randomFieldToShoot: Field = {
+  def randomFieldToShoot: Field = {
     val field = randomValidField
     if (shotFields.contains(field)) randomFieldToShoot
     else field
@@ -60,21 +60,25 @@ case class AI(playerBoard: Board,
       fieldToShoot
     } else {
       val newDirection = if (nextDirection.isEmpty) Some(choose(directions)) else nextDirection
-      val newField = nextDirection match {
+      val newField = newDirection match {
         case Some(Up) => Some(field.relative(0, -1))
         case Some(Down) => Some(field.relative(0, 1))
         case Some(Left) => Some(field.relative(-1, 0))
         case Some(Right) => Some(field.relative(1, 0))
-        case None => throw new Exception("Unexpected error: AI, setNextFieldAndDirection!")
+        case None => throw new Exception("Unexpected error: AI, setNextFieldAndDirection")
       }
 
-      AI(
-        playerBoard,
-        opponentBoard,
-        newField,
-        newDirection,
-        sunkenBoats
-      )
+      if (shotFields.contains(newField.get))
+        setNextFieldAndDirection(newField.get, didHit)
+      else
+        AI(
+          playerBoard,
+          opponentBoard,
+          newField,
+          newDirection,
+          sunkenBoats,
+          shotFields :+ newField.get
+        )
     }
   }
 

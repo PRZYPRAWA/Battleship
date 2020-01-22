@@ -12,23 +12,21 @@ class Board(val board: Map[Field, Ship] = Map()) {
 
   def shoot(field: Field): (Board, Reply) = {
     if (field.isValid) {
-      val attempt: Ship = board.getOrElse(field, Miss)
+      val attempt = board.getOrElse(field, Miss)
       if (attempt == Miss) (Board(board + (field -> Miss)), Mishit)
-      else {
-        //attempt.hit()
-        if (attempt.len == 0) (Board(board + (field -> Shot)), Sunk)
-        else (Board(board + (field -> Shot)), Hit)
-      }
+      else (Board(board + (field -> Shot)), Hit)
     }
     else (Board(board), Mishit)
   }
 
   def afterShot(field: Field, reply: Reply): Board = {
-    if (field.isValid) {
-      if (reply == Mishit) Board(board + (field -> Miss))
-      else Board(board + (field -> Shot))
+    if (field.isValid){
+      reply match {
+        case Mishit => new Board(board + (field -> Miss))
+        case Hit => new Board(board + (field -> Shot))
+      }
     }
-    Board(board)
+    else Board(board)
   }
 
   def fieldNotAdjoin(field: Field): Boolean = {
@@ -83,6 +81,7 @@ class Board(val board: Map[Field, Ship] = Map()) {
     if (beginField.isValid
       && endField.isValid
       && beginField.col == endField.col
+      && beginField.row != endField.row
       && shipNotAdjoin(beginField, endField, true)
       && (Math.abs(endField.row - beginField.row) + 1 == ship.len)) {
 
@@ -92,6 +91,7 @@ class Board(val board: Map[Field, Ship] = Map()) {
     else if (beginField.isValid
       && endField.isValid
       && beginField.row == endField.row
+      && beginField.col != endField.col
       && shipNotAdjoin(beginField, endField, false)
       && (Math.abs(endField.col - beginField.col) + 1 == ship.len)) {
 
