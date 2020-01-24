@@ -34,7 +34,7 @@ case class AI(playerBoard: Board,
     else field
   }
 
-  def choose[A](array: Array[A]): A = {
+  private def choose[A](array: Array[A]): A = {
     val r = new scala.util.Random
     array(r.nextInt(array.length))
   }
@@ -108,8 +108,7 @@ case class AI(playerBoard: Board,
           sunkenBoats,
           shotFields :+ field
         )
-      }
-      else {
+      } else {
         val randomField = randomFieldToShoot
         AI(
           playerBoard,

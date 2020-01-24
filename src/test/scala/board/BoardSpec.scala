@@ -38,7 +38,7 @@ class BoardSpec extends AnyWordSpec with Matchers {
       ))
 
       val newBoard2 = newBoard.addShip(firstField2, secondField2, shipToAdd2)
-      newBoard.board should not be newBoard2.board
+      newBoard2.board should not be newBoard.board
       newBoard2.board shouldEqual boardWithShip2.board
 
     }
