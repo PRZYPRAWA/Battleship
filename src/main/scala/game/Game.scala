@@ -58,7 +58,7 @@ object Game {
   }
 
   def playerShooting(player: NormalPlayer, ai: AI): ((NormalPlayer, AI), Boolean) = {
-    val playerFieldToShoot = getFieldToShootFromPlayer("Write field to shoot coordinates, e.g. 'a1'.")
+    val playerFieldToShoot = getFieldToShootFromPlayer(Message.WRITE_FIELD_TO_SHOOT)
 
     if (player.shotFields.contains(playerFieldToShoot)) {
       println(Message.SHOOTS_TO_THE_ALREADY_SHOT_FIELD)
@@ -138,18 +138,18 @@ object Game {
 
     val r = scala.util.Random.nextDouble() // random number between 0 and 1 to decide who is starting
     val winner = if (r > 0.5) {
-      println(s"$player is starting the game!")
+      println(Message.IS_STARTING_THE_GAME(player))
       Thread.sleep(2000)
 
       playerTurn(player, ai)
     } else {
-      println(s"$ai is starting the game!")
+      println(Message.IS_STARTING_THE_GAME(ai))
       Thread.sleep(2000)
 
       aiTurn(player, ai)
     }
 
-    println(s"$winner won the game!")
+    println(Message._WON_THE_GAME(winner))
   }
 
 }
