@@ -12,7 +12,7 @@ object Game {
     showBoard(opponentBoard, Message.OPPONENT_BOARD)
   }
 
-  def addAiShips(): AI = {
+  def addAiShips(ships: List[Ship]): AI = {
     def addShipFromList(ai: AI, ships: List[Ship]): AI = {
       ships match {
         case Nil =>
@@ -22,19 +22,11 @@ object Game {
       }
     }
 
-    val ships = List(
-      Carrier(),
-      Battleship(),
-      Destroyer(),
-      Submarine(),
-      PatrolBoat()
-    )
-
     val ai = AI(Board(), Board())
     addShipFromList(ai, ships)
   }
 
-  def addPlayerShips(): NormalPlayer = {
+  def addPlayerShips(ships: List[Ship]): NormalPlayer = {
     def addShipFromList(playerBoard: Board, ships: List[Ship]): Board = {
       ships match {
         case Nil =>
@@ -44,14 +36,6 @@ object Game {
           addShipFromList(addShipFromInput(playerBoard, h), t)
       }
     }
-
-    val ships = List(
-      Carrier(),
-      Battleship(),
-      Destroyer(),
-      Submarine(),
-      PatrolBoat()
-    )
 
     val playerBoard = addShipFromList(Board(), ships)
     NormalPlayer(playerBoard, Board())
@@ -130,10 +114,18 @@ object Game {
   }
 
   def startGame(): Unit = {
-    val ai = addAiShips().setNextFieldAndDirection(Field(0, 0), false)
+    val ships = List(
+      Carrier(),
+      Battleship(),
+      Destroyer(),
+      Submarine(),
+      PatrolBoat()
+    )
+
+    val ai = addAiShips(ships).setNextFieldAndDirection(Field(0, 0), false)
     showBoard(ai.playerBoard)
 
-    val player = addPlayerShips()
+    val player = addPlayerShips(ships)
     showBoard(player.playerBoard)
 
     val r = scala.util.Random.nextDouble() // random number between 0 and 1 to decide who is starting
