@@ -20,7 +20,7 @@ class Board(val board: Map[Field, Ship] = Map()) {
   }
 
   def afterShot(field: Field, reply: Reply): Board = {
-    if (field.isValid){
+    if (field.isValid) {
       reply match {
         case Mishit => new Board(board + (field -> Miss))
         case Hit => new Board(board + (field -> Shot))

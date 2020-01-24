@@ -60,24 +60,30 @@ object Game {
   def playerShooting(player: NormalPlayer, ai: AI): ((NormalPlayer, AI), Boolean) = {
     val playerFieldToShoot = getFieldToShootFromPlayer("Write field to shoot coordinates, e.g. 'a1'.")
 
-    val (aiBoardAfterShot, replyAfterShot) = ai.playerBoard.shoot(playerFieldToShoot)
-    val playerOpponentBoardAfterShot = player.opponentBoard.afterShot(playerFieldToShoot, replyAfterShot)
+    if (player.shotFields.contains(playerFieldToShoot)) {
+      println(Message.SHOOTS_TO_THE_ALREADY_SHOT_FIELD)
+      playerShooting(player, ai)
+    }
+    else {
+      val (aiBoardAfterShot, replyAfterShot) = ai.playerBoard.shoot(playerFieldToShoot)
+      val playerOpponentBoardAfterShot = player.opponentBoard.afterShot(playerFieldToShoot, replyAfterShot)
 
-    println(s"$player $replyAfterShot")
+      println(s"$player $replyAfterShot")
 
-    val didHit = replyAfterShot == Hit
+      val didHit = replyAfterShot == Hit
 
-    val playerToReturn = player.copy(
-      opponentBoard = playerOpponentBoardAfterShot,
-      fieldsShot = player.fieldsShot :+ playerFieldToShoot,
-      sunkenBoats = player.sunkenBoats + {
-        if (didHit) 1 else 0
-      }
-    )
+      val playerToReturn = player.copy(
+        opponentBoard = playerOpponentBoardAfterShot,
+        shotFields = player.shotFields :+ playerFieldToShoot,
+        sunkenBoats = player.sunkenBoats + {
+          if (didHit) 1 else 0
+        }
+      )
 
-    val aiToReturn = ai.copy(playerBoard = aiBoardAfterShot)
+      val aiToReturn = ai.copy(playerBoard = aiBoardAfterShot)
 
-    ((playerToReturn, aiToReturn), didHit)
+      ((playerToReturn, aiToReturn), didHit)
+    }
   }
 
   def aiShooting(player: NormalPlayer, ai: AI): ((NormalPlayer, AI), Boolean) = {
@@ -131,20 +137,19 @@ object Game {
     showBoard(player.playerBoard)
 
     val r = scala.util.Random.nextDouble() // random number between 0 and 1 to decide who is starting
-    if (r > 0.5) {
-      println(s"You are starting the game!")
+    val winner = if (r > 0.5) {
+      println(s"$player is starting the game!")
       Thread.sleep(2000)
 
-      val winner = playerTurn(player, ai)
-      println(s"$winner won the game!")
+      playerTurn(player, ai)
     } else {
-      println(s"AI is starting the game!")
+      println(s"$ai is starting the game!")
       Thread.sleep(2000)
 
-      val winner = aiTurn(player, ai)
-      println(s"$winner won the game!")
+      aiTurn(player, ai)
     }
 
+    println(s"$winner won the game!")
   }
 
 }

@@ -7,7 +7,7 @@ object Message {
   val PLAYER_BOARD = "YOUR BOARD"
   val OPPONENT_BOARD = "OPPONENT'S BOARD"
 
-  val ADD_SHIP_TO_BOARD = (ship: Ship) => s"Add $ship ship to your board: length ${ship.len}"
+  val ADD_SHIP_TO_BOARD: Ship => String = (ship: Ship) => s"Add $ship ship to your board: length ${ship.len}"
 
   val WRITE_FIELD_COORDINATES: String => String = (position: String) => s"Write $position field coordinates (e.g. 'a1'): "
   val WRONG_FORMAT = "Wrong format of the input, should be e.g.: 'a1'"

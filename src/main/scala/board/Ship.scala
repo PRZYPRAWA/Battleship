@@ -26,11 +26,13 @@ case class PatrolBoat(len: Int = ShipConstants.patrolBoatLen) extends Ship {
 
 case object Miss extends Ship {
   override val len: Int = 0
+
   override def toString: String = "o"
 }
 
 case object Shot extends Ship {
   override val len: Int = 0
+
   override def toString: String = "x"
 }
 
