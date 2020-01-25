@@ -4,11 +4,9 @@ import java.lang.System.lineSeparator
 
 object Board {
   val boardSize = 10
-
-  def apply(board: Map[Field, Ship] = Map.empty) = new Board(board)
 }
 
-class Board(val board: Map[Field, Ship] = Map()) {
+case class Board(board: Map[Field, Ship] = Map()) {
 
   def shoot(field: Field): (Board, Reply) = {
     if (field.isValid) {

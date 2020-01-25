@@ -20,7 +20,7 @@ class BoardSpec extends AnyWordSpec with Matchers {
       ))
 
       val newBoard = board.addShip(firstField, secondField, shipToAdd)
-      newBoard.board shouldBe boardWithShip.board
+      newBoard shouldBe boardWithShip
 
       val shipToAdd2 = Battleship()
       val firstField2 = Field(2, 3)
@@ -38,8 +38,8 @@ class BoardSpec extends AnyWordSpec with Matchers {
       ))
 
       val newBoard2 = newBoard.addShip(firstField2, secondField2, shipToAdd2)
-      newBoard2.board should not be newBoard.board
-      newBoard2.board shouldEqual boardWithShip2.board
+      newBoard2 should not be newBoard
+      newBoard2 shouldEqual boardWithShip2
 
     }
 
@@ -56,13 +56,13 @@ class BoardSpec extends AnyWordSpec with Matchers {
       val invalidSecondField1 = Field(5, 1)
       val boardAfterFirstAttempt = boardWithShip.addShip(invalidFirstField1, invalidSecondField1, invalidShip)
 
-      boardWithShip.board shouldEqual boardAfterFirstAttempt.board
+      boardWithShip shouldEqual boardAfterFirstAttempt
 
       val invalidFirstField2 = Field(2, 2)
       val invalidSecondField2 = Field(5, 2)
       val boardAfterSecondAttempt = boardWithShip.addShip(invalidFirstField2, invalidSecondField2, invalidShip)
 
-      boardWithShip.board shouldEqual boardAfterSecondAttempt.board
+      boardWithShip shouldEqual boardAfterSecondAttempt
     }
 
     "return the same Board if tried to add a ship at an invalid field" in {
@@ -72,7 +72,7 @@ class BoardSpec extends AnyWordSpec with Matchers {
       val firstField = Field(1, 0)
       val secondField = Field(5, 0)
       val boardAfterAttempt = board.addShip(firstField, secondField, shipToAdd)
-      boardAfterAttempt.board shouldBe board.board
+      boardAfterAttempt shouldBe board
     }
 
     "return Hit if shoot at occupied field" in {
@@ -84,11 +84,11 @@ class BoardSpec extends AnyWordSpec with Matchers {
       val secondField = Field(5, 1)
       val boardWithShip = board.addShip(firstField, secondField, shipToAdd)
 
-      boardWithShip.board should not be board.board
+      boardWithShip should not be board
 
       val (boardAfterShoot, reply) = boardWithShip.shoot(fieldToShoot)
       reply shouldBe Hit
-      boardAfterShoot.board should not be boardWithShip.board
+      boardAfterShoot should not be boardWithShip
       boardAfterShoot.board shouldBe Map(
         Field(1, 1) -> Shot
         , Field(2, 1) -> shipToAdd
