@@ -20,7 +20,7 @@ object UI {
     val (field, errorMessage) = getField
 
     (field, errorMessage) match {
-      case (Some(field), None) => field
+      case (Some(value), None) => value
       case (None, Some(err)) =>
         println(err)
         getFieldToShootFromPlayer(msg)
@@ -42,12 +42,12 @@ object UI {
       val (field, errorMessage) = getField
 
       (field, errorMessage) match {
-        case (Some(field), None) =>
-          if (!board.fieldNotAdjoin(field)) {
+        case (Some(value), None) =>
+          if (!board.fieldNotAdjoin(value)) {
             println(Message.FIELD_ADJOINS_OTHER_SHIP)
             getValidField(msg)
           }
-          else field
+          else value
         case (None, Some(err)) =>
           println(err)
           getFieldToShootFromPlayer(msg)

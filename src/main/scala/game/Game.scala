@@ -121,7 +121,7 @@ object Game {
       PatrolBoat()
     )
 
-    val ai = addAiShips(ships).setNextFieldAndDirection(Field(0, 0), false)
+    val ai = addAiShips(ships).setNextFieldAndDirection(Field(0, 0), didHit = false)
     showBoard(ai.playerBoard)
 
     val player = addPlayerShips(ships)
