@@ -28,12 +28,6 @@ case class AI(playerBoard: Board,
     else randomFieldToAddShip
   }
 
-  def randomFieldToShoot: Field = {
-    val field = randomValidField
-    if (shotFields.contains(field)) randomFieldToShoot
-    else field
-  }
-
   private def choose[A](array: Array[A]): A = {
     val r = new scala.util.Random
     array(r.nextInt(array.length))
@@ -55,31 +49,10 @@ case class AI(playerBoard: Board,
     )
   }
 
-  def setNextFieldAndDirection(field: Field, didHit: Boolean): AI = {
-    if (!didHit) {
-      fieldToShoot
-    } else {
-      val newDirection = if (nextDirection.isEmpty) Some(choose(directions)) else nextDirection
-      val newField = newDirection match {
-        case Some(Up) => Some(field.relative(0, -1))
-        case Some(Down) => Some(field.relative(0, 1))
-        case Some(Left) => Some(field.relative(-1, 0))
-        case Some(Right) => Some(field.relative(1, 0))
-        case None => throw new Exception("Unexpected error: AI, setNextFieldAndDirection")
-      }
-
-      if (shotFields.contains(newField.get))
-        setNextFieldAndDirection(newField.get, didHit)
-      else
-        AI(
-          playerBoard,
-          opponentBoard,
-          newField,
-          newDirection,
-          sunkenBoats,
-          shotFields :+ newField.get
-        )
-    }
+  def randomFieldToShoot: Field = {
+    val field = randomValidField
+    if (shotFields.contains(field)) randomFieldToShoot
+    else field
   }
 
   private def fieldToShoot: AI = {
@@ -121,4 +94,32 @@ case class AI(playerBoard: Board,
       }
     }
   }
+
+  def setNextFieldAndDirection(field: Field, didHit: Boolean): AI = {
+    if (!didHit) {
+      fieldToShoot
+    } else {
+      val newDirection = if (nextDirection.isEmpty) Some(choose(directions)) else nextDirection
+      val newField = newDirection match {
+        case Some(Up) => Some(field.relative(0, -1))
+        case Some(Down) => Some(field.relative(0, 1))
+        case Some(Left) => Some(field.relative(-1, 0))
+        case Some(Right) => Some(field.relative(1, 0))
+        case None => throw new Exception("Unexpected error: AI, setNextFieldAndDirection")
+      }
+
+      if (shotFields.contains(newField.get))
+        setNextFieldAndDirection(newField.get, didHit)
+      else
+        AI(
+          playerBoard,
+          opponentBoard,
+          newField,
+          newDirection,
+          sunkenBoats,
+          shotFields :+ newField.get
+        )
+    }
+  }
+
 }

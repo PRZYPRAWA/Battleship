@@ -51,18 +51,11 @@ case class Board(board: Map[Field, Ship] = Map()) {
     }
 
     val (beginField, endField) = if (begin < end) (begin, end) else (end, begin)
-    if (vertical) {
-      //      checkDoesNotAdjoin(beginField.relative(0, -1), endField.relative(0, 1), true) &&
-      //        checkDoesNotAdjoin(beginField.relative(-1, -1), endField.relative(-1, 1), true) &&
-      //        checkDoesNotAdjoin(beginField.relative(1, -1), endField.relative(1, 1), true)
-      checkDoesNotAdjoin(beginField, endField, true)
-    }
-    else {
-      //      checkDoesNotAdjoin(beginField.relative(-1, 0), endField.relative(1, 0), false) &&
-      //        checkDoesNotAdjoin(beginField.relative(-1, -1), endField.relative(1, -1), false) &&
-      //        checkDoesNotAdjoin(beginField.relative(-1, 1), endField.relative(1, 1), false)
-      checkDoesNotAdjoin(beginField, endField, false)
-    }
+    if (vertical)
+      checkDoesNotAdjoin(beginField, endField, vertical = true)
+    else
+      checkDoesNotAdjoin(beginField, endField, vertical = false)
+
   }
 
   def addShip(beginField: Field, endField: Field, ship: Ship): Board = {
@@ -80,21 +73,21 @@ case class Board(board: Map[Field, Ship] = Map()) {
       && endField.isValid
       && beginField.col == endField.col
       && beginField.row != endField.row
-      && shipNotAdjoin(beginField, endField, true)
+      && shipNotAdjoin(beginField, endField, vertical = true)
       && (Math.abs(endField.row - beginField.row) + 1 == ship.len)) {
 
-      if (beginField < endField) new Board(board ++ add(beginField, endField, ship, true))
-      else new Board(board ++ add(endField, beginField, ship, true))
+      if (beginField < endField) new Board(board ++ add(beginField, endField, ship, vertical = true))
+      else new Board(board ++ add(endField, beginField, ship, vertical = true))
     }
     else if (beginField.isValid
       && endField.isValid
       && beginField.row == endField.row
       && beginField.col != endField.col
-      && shipNotAdjoin(beginField, endField, false)
+      && shipNotAdjoin(beginField, endField, vertical = false)
       && (Math.abs(endField.col - beginField.col) + 1 == ship.len)) {
 
-      if (beginField < endField) new Board(board ++ add(beginField, endField, ship, false))
-      else new Board(board ++ add(endField, beginField, ship, false))
+      if (beginField < endField) new Board(board ++ add(beginField, endField, ship, vertical = false))
+      else new Board(board ++ add(endField, beginField, ship, vertical = false))
     }
     else Board(board)
   }
@@ -113,8 +106,8 @@ case class Board(board: Map[Field, Ship] = Map()) {
       field.relative(0, -shipLength)
     )
 
-    verticalPossibilities.filter(elem => elem.isValid && shipNotAdjoin(field, elem, true)) ++
-      horizontalPossibilities.filter(elem => elem.isValid && shipNotAdjoin(field, elem, false))
+    verticalPossibilities.filter(elem => elem.isValid && shipNotAdjoin(field, elem, vertical = true)) ++
+      horizontalPossibilities.filter(elem => elem.isValid && shipNotAdjoin(field, elem, vertical = false))
   }
 
   override def toString: String = {

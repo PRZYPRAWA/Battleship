@@ -10,6 +10,7 @@ object Game {
   def update(playerBoard: Board, opponentBoard: Board): Unit = {
     showBoard(playerBoard, Message.PLAYER_BOARD)
     showBoard(opponentBoard, Message.OPPONENT_BOARD)
+    Thread.sleep(2000) // to make it easier to read
   }
 
   def addAiShips(ships: List[Ship]): AI = {
@@ -96,7 +97,6 @@ object Game {
   def playerTurn(player: NormalPlayer, ai: AI): Player = {
     val ((playerAfterShot, aiAfterShot), didHit) = playerShooting(player, ai)
     update(playerAfterShot.playerBoard, playerAfterShot.opponentBoard)
-    Thread.sleep(2000)
 
     if (playerAfterShot.sunkenBoats == ShipConstants.winningPoints) playerAfterShot
     else if (didHit) playerTurn(playerAfterShot, aiAfterShot)
@@ -106,7 +106,6 @@ object Game {
   def aiTurn(player: NormalPlayer, ai: AI): Player = {
     val ((playerAfterShot, aiAfterShot), didHit) = aiShooting(player, ai)
     update(playerAfterShot.playerBoard, playerAfterShot.opponentBoard)
-    Thread.sleep(2000)
 
     if (aiAfterShot.sunkenBoats == ShipConstants.winningPoints) aiAfterShot
     else if (didHit) aiTurn(playerAfterShot, aiAfterShot)
@@ -141,7 +140,7 @@ object Game {
       aiTurn(player, ai)
     }
 
-    println(Message._WON_THE_GAME(winner))
+    println(Message.WON_THE_GAME(winner))
   }
 
 }

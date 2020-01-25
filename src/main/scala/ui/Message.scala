@@ -20,7 +20,7 @@ object Message {
   val SHOOTS_TO_THE_ALREADY_SHOT_FIELD = "You shot this field earlier, try again!"
 
   val IS_STARTING_THE_GAME: Player => String = (player: Player) => s"$player IS STARTING THE GAME"
-  val _WON_THE_GAME: Player => String = (player: Player) => s"$player WON THE GAME"
+  val WON_THE_GAME: Player => String = (player: Player) => s"$player WON THE GAME"
 
   val OTHER_KIND_OF_EXCEPTION = "Other kind of exception!"
 
