@@ -13,16 +13,15 @@ case class Field(col: Int, row: Int) {
 }
 
 object Field {
-  //returns pair of Options (Field, ErrorMessage)
-  def fromStringToField(field: String): (Option[Field], Option[String]) = {
+  def fromStringToField(field: String): Either[String, Field] = {
     if (field.matches("[a-j]\\d{1,2}")) {
       val col = field.charAt(0) - 96 // because 'a' in ascii is 97
       val row = field.substring(1).toInt
       val newField = Field(col, row)
 
-      if (newField.isValid) (Some(newField), None)
-      else (None, Some(Message.FIELD_OUT_OF_BOARD))
+      if (newField.isValid) Right(newField)
+      else Left(Message.FIELD_OUT_OF_BOARD)
     }
-    else (None, Some(Message.WRONG_FORMAT))
+    else Left(Message.WRONG_FORMAT)
   }
 }

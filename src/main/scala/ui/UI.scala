@@ -9,7 +9,7 @@ import board._
 object UI {
   def showBoard(board: Board, msg: String = ""): Unit = println(msg + lineSeparator() + board + lineSeparator())
 
-  def getField: (Option[Field], Option[String]) = {
+  def getField: Either[String, Field] = {
     val field = readLine
     Field.fromStringToField(field)
   }
@@ -17,11 +17,11 @@ object UI {
   def getFieldToShootFromPlayer(msg: String): Field = {
     println(msg)
 
-    val (field, errorMessage) = getField
+    val fieldEither = getField
 
-    (field, errorMessage) match {
-      case (Some(value), None) => value
-      case (None, Some(err)) =>
+    fieldEither match {
+      case Right(value) => value
+      case Left(err) =>
         println(err)
         getFieldToShootFromPlayer(msg)
       case _ => throw new Exception("Unexpected error!")
@@ -39,16 +39,16 @@ object UI {
     def getValidField(msg: String): Field = {
       println(msg)
 
-      val (field, errorMessage) = getField
+      val fieldEither = getField
 
-      (field, errorMessage) match {
-        case (Some(value), None) =>
+      fieldEither match {
+        case Right(value) =>
           if (!board.fieldNotAdjoin(value)) {
             println(Message.FIELD_ADJOINS_OTHER_SHIP)
             getValidField(msg)
           }
           else value
-        case (None, Some(err)) =>
+        case Left(err) =>
           println(err)
           getFieldToShootFromPlayer(msg)
         case _ => throw new Exception("Unexpected error!")
