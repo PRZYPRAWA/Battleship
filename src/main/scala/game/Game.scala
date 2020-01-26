@@ -122,7 +122,7 @@ object Game {
     )
 
     val ai = addAiShips(ships).setNextFieldAndDirection(Field(0, 0), didHit = false)
-    showBoard(ai.playerBoard)
+    //showBoard(ai.playerBoard)
 
     val player = addPlayerShips(ships)
     showBoard(player.playerBoard)
