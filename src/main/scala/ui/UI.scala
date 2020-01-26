@@ -24,7 +24,6 @@ object UI {
       case Left(err) =>
         println(err)
         getFieldToShootFromPlayer(msg)
-      case _ => throw new Exception("Unexpected error!")
     }
   }
 
@@ -51,7 +50,6 @@ object UI {
         case Left(err) =>
           println(err)
           getFieldToShootFromPlayer(msg)
-        case _ => throw new Exception("Unexpected error!")
       }
     }
 
